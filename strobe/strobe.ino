@@ -1,3 +1,14 @@
+// sceme of work strobe in class RegimeStrob
+
+
+
+char regime[][7] = {
+  { '10', '1000', '1101', '1111', '0111', '0010', '0000' },
+  { '10', '1000', '1101', '1111', '1101', '1000', '0000' },
+  { '1', '1111', '0000', '1111', '0000', '1111', '0000' }
+};
+
+// --------------------
 
 const int buttonPin = 2;  // button pin IN - D2, open - 1, closed - 0
 
@@ -6,11 +17,15 @@ const int lamp_2 = 4;  // pin of lamp 1 - D4
 const int lamp_3 = 5;  // pin of lamp 1 - D5
 const int lamp_4 = 6;  // pin of lamp 1 - D6
 
+const int buttonLamp = 7;  // pin for button - D7
+
 int buttonState = 0;  // variable for switching modes
 unsigned long lastTimePressed;
 int btnPressed = 700;  // time for anti-bounce
 
 int cnt = 0;
+
+bool workOn
 
 void pressButton() {
   if (millis() - lastTimePressed > btnPressed) {
