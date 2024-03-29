@@ -1,12 +1,12 @@
+#include "RegimeStrob.h"
+
 // sceme of work strobe in class RegimeStrob
 
-
-
-char regime[][7] = {
-  { '10', '1000', '1101', '1111', '0111', '0010', '0000' },
-  { '10', '1000', '1101', '1111', '1101', '1000', '0000' },
-  { '1', '1111', '0000', '1111', '0000', '1111', '0000' }
-};
+// char regime[][7] = {
+//   { '10', '1000', '1101', '1111', '0111', '0010', '0000' },
+//   { '10', '1000', '1101', '1111', '1101', '1000', '0000' },
+//   { '1', '1111', '0000', '1111', '0000', '1111', '0000' }
+// };
 
 // --------------------
 
@@ -19,19 +19,22 @@ const int lamp_4 = 6;  // pin of lamp 1 - D6
 
 const int buttonLamp = 7;  // pin for button - D7
 
-int buttonState = 0;  // variable for switching modes
+int regime = 0;  // variable for switching modes
+bool buttonState = false;
 unsigned long lastTimePressed;
-int btnPressed = 700;  // time for anti-bounce
+int btnPressed = 600;      // time for off strobe
+int btnTimerBounce = 130;  // time for anti bounce
+
+bool btnFlag = false;
 
 int cnt = 0;
 
-bool workOn
+bool workOn = false;
 
 void pressButton() {
-  if (millis() - lastTimePressed > btnPressed) {
+  if (millis() - lastTimePressed > btnTimerBounce) {
     lastTimePressed = millis();
-    buttonState++;
-    if (buttonState > 5) buttonState = 0;
+    buttonState = true;
   }
 }
 
@@ -42,18 +45,67 @@ void setup() {
   pinMode(lamp_2, OUTPUT);
   pinMode(lamp_3, OUTPUT);
   pinMode(lamp_4, OUTPUT);
+  pinMode(buttonLamp, OUTPUT);
   lastTimePressed = millis();
-  attachInterrupt(0, pressButton, FALLING);
+  attachInterrupt(0, pressButton, RISING);
 }
 
 void loop() {
-  Serial.print("button: ");
-  Serial.print(digitalRead(buttonPin));
-  Serial.print("    state: ");
-  Serial.println(buttonState);
-  cnt++;
-  if (cnt > 100) {
-    Serial.println();
-    cnt = 0;
+  // Serial.print("button: ");
+  // Serial.print(digitalRead(buttonPin));
+  // Serial.print("    state: ");
+  // Serial.println(buttonState);
+  switch (regime) {
+    case 0:
+      digitalWrite(lamp_1, 0);
+      digitalWrite(lamp_2, 0);
+      digitalWrite(lamp_3, 0);
+      digitalWrite(lamp_4, 0);
+      digitalWrite(buttonLamp, 0);
+      break;
+    case 1:
+      digitalWrite(buttonLamp, 1);
+      break;
+    case 2:
+      digitalWrite(lamp_1, 1);
+      break;
+    case 3:
+      digitalWrite(lamp_2, 1);
+      break;
+    case 4:
+      digitalWrite(lamp_3, 1);
+      break;
+    case 5:
+      digitalWrite(lamp_4, 1);
+      break;
   }
+
+  if (buttonState) {
+    buttonState = false;
+    regime++;
+    if (regime > 5) regime = 1;
+    if (millis() - lastTimePressed > btnPressed) regime = 0;
+  }
+
+
+  // bool btnState = digitalRead(buttonPin);
+
+  // if (btnState && millis() - lastTimePressed > btnTimerBounce && !btnFlag) {
+  //   lastTimePressed = millis();
+  //   buttonState++;
+  //   if (buttonState > 5) buttonState = 0;
+  //   btnFlag = true;
+  //   while (btnState) {
+  //     btnState = digitalRead(buttonPin);
+  //     if (millis() - lastTimePressed > btnPressed) {
+  //       buttonState = 0;
+  //       lastTimePressed = millis();
+  //       break;
+  //     }
+  //   }
+  // }
+  // if (!btnState && btnFlag && millis() - lastTimePressed > btnTimerBounce) {
+  //   btnFlag = false;
+  //   lastTimePressed = millis();
+  // }
 }
