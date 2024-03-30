@@ -10,22 +10,23 @@
 
 // --------------------
 
-const int buttonPin = 2;  // button pin IN - D2, open - 1, closed - 0
+const int buttonPin = 2;   // button pin IN - D2, open - 1, closed - 0
+const int buttonLamp = 7;  // pin for button - D7
 
 const int lamp_1 = 3;  // pin of lamp 1 - D3
 const int lamp_2 = 4;  // pin of lamp 1 - D4
 const int lamp_3 = 5;  // pin of lamp 1 - D5
 const int lamp_4 = 6;  // pin of lamp 1 - D6
 
-const int buttonLamp = 7;  // pin for button - D7
-
 int regime = 0;  // variable for switching modes
+
 bool buttonState = false;
+bool btnFlag = false;
+
 unsigned long lastTimePressed;
-int btnPressed = 600;      // time for off strobe
+int btnPressedTime = 600;  // time for off strobe
 int btnTimerBounce = 130;  // time for anti bounce
 
-bool btnFlag = false;
 
 int cnt = 0;
 
@@ -34,7 +35,7 @@ bool workOn = false;
 void pressButton() {
   if (millis() - lastTimePressed > btnTimerBounce) {
     lastTimePressed = millis();
-    buttonState = true;
+    buttonState = digitalRead(buttonPin);
   }
 }
 
@@ -47,7 +48,7 @@ void setup() {
   pinMode(lamp_4, OUTPUT);
   pinMode(buttonLamp, OUTPUT);
   lastTimePressed = millis();
-  attachInterrupt(0, pressButton, RISING);
+  attachInterrupt(0, pressButton, CHANGE);
 }
 
 void loop() {
@@ -80,11 +81,21 @@ void loop() {
       break;
   }
 
-  if (buttonState) {
-    buttonState = false;
+  unsigned long timeWhichButtonPressed = millis() - lastTimePressed;
+
+  if (buttonState && timeWhichButtonPressed > btnPressedTime && timeWhichButtonPressed < btnPressedTime + 10) {
+    regime = 0;
+    workOn = false;
+  }
+
+  if (buttonState && !btnFlag) {
+    btnFlag = true;
     regime++;
     if (regime > 5) regime = 1;
-    if (millis() - lastTimePressed > btnPressed) regime = 0;
+  }
+
+  if (!buttonState && btnFlag) {
+    btnFlag = false;
   }
 
 
