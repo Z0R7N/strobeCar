@@ -2,10 +2,10 @@
 
 // sceme of work strobe in class RegimeStrob
 
-char regime[][7] = {
-  { '10', '1000', '1101', '1111', '0111', '0010', '0000' },
-  { '10', '1000', '1101', '1111', '1101', '1000', '0000' },
-  { '1', '1111', '0000', '1111', '0000', '1111', '0000' }
+char strobRegime[][7] = {
+  { '10', '10001', '11011', '11111', '01110', '00100', '00000' },
+  { '10', '10001', '11011', '11111', '11011', '10001', '00000' },
+  { '1', '11111', '00000', '11111', '00000', '11111', '00000' }
 };
 
 // --------------------
@@ -26,19 +26,15 @@ bool btnFlag = false;
 unsigned long lastTimePressed;
 // unsigned long lastTimeRelised;
 int btnPressedTime = 600;  // time for off strobe
-int btnTimerBounce = 130;  // time for anti bounce
+int btnTimerBounce = 180;  // time for anti bounce
 
 bool workOn = false;
 
 void pressButton() {
   if (millis() - lastTimePressed > btnTimerBounce) {
     lastTimePressed = millis();
-    int p = digitalRead(buttonPin);
-    if (p == 1) {
-      buttonState = true;
-    } else {
-      buttonState = false;
-    }
+    buttonState = digitalRead(buttonPin);
+    // Serial.println(buttonState);
   }
 }
 
@@ -51,14 +47,11 @@ void setup() {
   pinMode(lamp_4, OUTPUT);
   pinMode(buttonLamp, OUTPUT);
   lastTimePressed = millis();
-  attachInterrupt(0, pressButton, CHANGE);
+  // attachInterrupt(digitalPinToInterrupt(buttonPin), pressButton, CHANGE);
 }
 
 void loop() {
-  // Serial.print("button: ");
-  // Serial.print(digitalRead(buttonPin));
-  // Serial.print("    state: ");
-  // Serial.println(buttonState);
+
   switch (regime) {
     case 0:
       digitalWrite(lamp_1, 0);
@@ -84,47 +77,34 @@ void loop() {
       break;
   }
 
+
+  //-------------------------------------------------------
+  buttonState = digitalRead(buttonPin);
+
   unsigned long timeWhichButtonPressed = millis() - lastTimePressed;
 
-  if (buttonState && timeWhichButtonPressed > btnPressedTime && timeWhichButtonPressed < btnPressedTime + 10) {
+  if (buttonState && timeWhichButtonPressed > btnPressedTime && btnFlag) {// && timeWhichButtonPressed < btnPressedTime + 10) {
     regime = 0;
     workOn = false;
-    Serial.println("work off");
-    btnFlag = false;
-    delay(300);
+    // Serial.print("work off, regime = ");
+    // Serial.println(regime);
+    // Serial.print("button state = ");
+    // Serial.println(buttonState);
+    // btnFlag = false;
+    // delay(300);
   }
 
-  if (buttonState && !btnFlag) {
+  if (buttonState && !btnFlag && timeWhichButtonPressed > btnTimerBounce) {
+    lastTimePressed = millis();
     btnFlag = true;
     regime++;
-    if (regime > 5) regime = 1;
-    Serial.print("change regime to ");
-    Serial.println(regime);
+    if (regime > 5) regime = 0;
+    // Serial.print("change regime to ");
+    // Serial.println(regime);
   }
 
-  if (!buttonState && btnFlag) {
+  if (!buttonState && btnFlag && timeWhichButtonPressed > btnTimerBounce) {
     btnFlag = false;
+    // Serial.println("btn flag = false");
   }
-
-
-  // bool btnState = digitalRead(buttonPin);
-
-  // if (btnState && millis() - lastTimePressed > btnTimerBounce && !btnFlag) {
-  //   lastTimePressed = millis();
-  //   buttonState++;
-  //   if (buttonState > 5) buttonState = 0;
-  //   btnFlag = true;
-  //   while (btnState) {
-  //     btnState = digitalRead(buttonPin);
-  //     if (millis() - lastTimePressed > btnPressed) {
-  //       buttonState = 0;
-  //       lastTimePressed = millis();
-  //       break;
-  //     }
-  //   }
-  // }
-  // if (!btnState && btnFlag && millis() - lastTimePressed > btnTimerBounce) {
-  //   btnFlag = false;
-  //   lastTimePressed = millis();
-  // }
 }
