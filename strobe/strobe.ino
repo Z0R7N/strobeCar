@@ -2,11 +2,11 @@
 
 // sceme of work strobe in class RegimeStrob
 
-// char regime[][7] = {
-//   { '10', '1000', '1101', '1111', '0111', '0010', '0000' },
-//   { '10', '1000', '1101', '1111', '1101', '1000', '0000' },
-//   { '1', '1111', '0000', '1111', '0000', '1111', '0000' }
-// };
+char regime[][7] = {
+  { '10', '1000', '1101', '1111', '0111', '0010', '0000' },
+  { '10', '1000', '1101', '1111', '1101', '1000', '0000' },
+  { '1', '1111', '0000', '1111', '0000', '1111', '0000' }
+};
 
 // --------------------
 
@@ -24,18 +24,21 @@ bool buttonState = false;
 bool btnFlag = false;
 
 unsigned long lastTimePressed;
+// unsigned long lastTimeRelised;
 int btnPressedTime = 600;  // time for off strobe
 int btnTimerBounce = 130;  // time for anti bounce
-
-
-int cnt = 0;
 
 bool workOn = false;
 
 void pressButton() {
   if (millis() - lastTimePressed > btnTimerBounce) {
     lastTimePressed = millis();
-    buttonState = digitalRead(buttonPin);
+    int p = digitalRead(buttonPin);
+    if (p == 1) {
+      buttonState = true;
+    } else {
+      buttonState = false;
+    }
   }
 }
 
@@ -86,12 +89,17 @@ void loop() {
   if (buttonState && timeWhichButtonPressed > btnPressedTime && timeWhichButtonPressed < btnPressedTime + 10) {
     regime = 0;
     workOn = false;
+    Serial.println("work off");
+    btnFlag = false;
+    delay(300);
   }
 
   if (buttonState && !btnFlag) {
     btnFlag = true;
     regime++;
     if (regime > 5) regime = 1;
+    Serial.print("change regime to ");
+    Serial.println(regime);
   }
 
   if (!buttonState && btnFlag) {
