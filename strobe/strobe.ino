@@ -1,12 +1,17 @@
 
-// sceme of work strobe in class RegimeStrob
+// mode operation schemes, first value in massive is time of changing lights (leading zeros are required)
 
 String strobRegime[][7] = {
-  { "150", "10001", "11011", "11111", "01110", "00100", "00000" },
-  { "150", "10001", "11011", "11111", "11011", "10001", "00000" },
-  { "50", "11111", "00000", "11111", "00000", "11111", "00000" }
+  { "00150", "11111", "00000", "11111", "00000", "11111", "00000" },
+  { "00050", "11111", "00000", "11111", "00000", "11111", "00000" },
+  { "00150", "10001", "11011", "11111", "01110", "00100", "00000" },
+  { "00150", "10001", "11011", "11111", "11011", "10001", "00000" },
+  { "00150", "10101", "01010", "10101", "01010", "10101", "01010" },
+  { "00050", "10101", "01010", "10101", "01010", "10101", "01010" }
 };
-int countStrobRegime1 = 3;
+
+int countStrobRegime1 = sizeof(strobRegime) / sizeof(strobRegime[0]);
+// int countStrobRegime1 = 3;
 int countStrobRegime2 = 7;
 
 // --------------------
@@ -19,7 +24,7 @@ const int lamp_2 = 4;  // pin of lamp 1 - D4
 const int lamp_3 = 5;  // pin of lamp 1 - D5
 const int lamp_4 = 6;  // pin of lamp 1 - D6
 
-int regime = 0;  // variable for switching modes
+int regime = -1;  // variable for switching modes
 int countOfMassive = 1;
 
 // time to change lights
@@ -42,27 +47,29 @@ bool workOn = false;
 //   }
 // }
 
-// turn on/off lamp
-// void switchLamp(int lmp, int lght) {
-//   digitalWrite(lmp + 3, lght);
-// }
+
+// switching lamps
+void switchLamps(String swch) {
+  for (int i = 0; i < 4; i++) {
+    digitalWrite(i + 3, String(swch[i]).toInt());
+  }
+}
 
 
 // lights on/off by regime
 void workLights() {
   unsigned long changeRegime = millis() - lastTimeChangeRegime;
-  int tm = strobRegime[0][regime].toInt();
+  int tm = strobRegime[regime][0].toInt();
   if (changeRegime > tm) {
-    for (int i = 0; i < countStrobRegime1; i++) {
-      for (int j = 1; j < countStrobRegime2; j++) {
-        for (int h = 0; h < 5; h++) {
-          // Serial.print(strobRegime[i][j][h]);
-        }
-      }
-    }
+    String s1 = strobRegime[regime][countOfMassive];
+    // Serial.print("count: ");
+    // Serial.print(countOfMassive);
+    // Serial.print("  string to light: ");
+    // Serial.println(s1);
+    switchLamps(s1);
     lastTimeChangeRegime = millis();
     countOfMassive++;
-    if (countOfMassive > countStrobRegime1) {
+    if (countOfMassive > countStrobRegime2 - 1) {
       countOfMassive = 1;
     }
   }
@@ -82,27 +89,9 @@ void setup() {
 
 void loop() {
   if (workOn) {
-    digitalWrite(buttonLamp, 1);
     workLights();
-  } else {
-    digitalWrite(buttonLamp, 0);
   }
 
-  for (int i = 0; i < countStrobRegime1; i++) {
-    for (int j = 1; j < countStrobRegime2; j++) {
-      for (int h = 0; h < 5; h++) {
-        Serial.print(strobRegime[i][j][h]);
-        Serial.print(" ");
-      }
-      Serial.print(" ");
-      Serial.print(" ");
-    }
-    Serial.println();
-  }
-  Serial.println();
-  Serial.println();
-  while (true) {
-  }
   // switch (regime) {
   //   case 0:
   //     digitalWrite(lamp_1, 0);
@@ -135,27 +124,22 @@ void loop() {
   unsigned long timeWhichButtonPressed = millis() - lastTimePressed;
 
   if (buttonState && timeWhichButtonPressed > btnPressedTime && btnFlag) {  // && timeWhichButtonPressed < btnPressedTime + 10) {
-    regime = 0;
+    // regime = 0;
     workOn = false;
-    // Serial.print("work off, regime = ");
-    // Serial.println(regime);
-    // Serial.print("button state = ");
-    // Serial.println(buttonState);
-    // btnFlag = false;
-    // delay(300);
+    digitalWrite(buttonLamp, 0);
+    switchLamps("00000");
   }
 
   if (buttonState && !btnFlag && timeWhichButtonPressed > btnTimerBounce) {
     lastTimePressed = millis();
+    digitalWrite(buttonLamp, 1);
+    workOn = true;
     btnFlag = true;
     regime++;
-    if (regime > 5) regime = 0;
-    // Serial.print("change regime to ");
-    // Serial.println(regime);
+    if (regime >= countStrobRegime1) regime = 0;
   }
 
   if (!buttonState && btnFlag && timeWhichButtonPressed > btnTimerBounce) {
     btnFlag = false;
-    // Serial.println("btn flag = false");
   }
 }
