@@ -1,4 +1,3 @@
-#include "RegimeStrob.h"
 
 // sceme of work strobe in class RegimeStrob
 
@@ -9,6 +8,7 @@ String strobRegime[][7] = {
 };
 int countStrobRegime1 = 3;
 int countStrobRegime2 = 7;
+
 // --------------------
 
 const int buttonPin = 2;   // button pin IN - D2, open - 1, closed - 0
@@ -53,9 +53,12 @@ void workLights() {
   unsigned long changeRegime = millis() - lastTimeChangeRegime;
   int tm = strobRegime[0][regime].toInt();
   if (changeRegime > tm) {
-    for (int i = 0; i < 4; i++) {
-      // int n = strobRegime
-      // digitalWrite(i + 3, strobRegime[]);
+    for (int i = 0; i < countStrobRegime1; i++) {
+      for (int j = 1; j < countStrobRegime2; j++) {
+        for (int h = 0; h < 5; h++) {
+          // Serial.print(strobRegime[i][j][h]);
+        }
+      }
     }
     lastTimeChangeRegime = millis();
     countOfMassive++;
@@ -91,6 +94,8 @@ void loop() {
         Serial.print(strobRegime[i][j][h]);
         Serial.print(" ");
       }
+      Serial.print(" ");
+      Serial.print(" ");
     }
     Serial.println();
   }
