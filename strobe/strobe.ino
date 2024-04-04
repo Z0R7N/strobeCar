@@ -11,7 +11,6 @@ String strobRegime[][7] = {
 };
 
 int countStrobRegime1 = sizeof(strobRegime) / sizeof(strobRegime[0]);
-// int countStrobRegime1 = 3;
 int countStrobRegime2 = 7;
 
 // --------------------
@@ -39,15 +38,6 @@ int btnTimerBounce = 180;  // time for anti bounce
 
 bool workOn = false;
 
-// void pressButton() {
-//   if (millis() - lastTimePressed > btnTimerBounce) {
-//     lastTimePressed = millis();
-//     buttonState = digitalRead(buttonPin);
-//     // Serial.println(buttonState);
-//   }
-// }
-
-
 // switching lamps
 void switchLamps(String swch) {
   for (int i = 0; i < 4; i++) {
@@ -62,10 +52,6 @@ void workLights() {
   int tm = strobRegime[regime][0].toInt();
   if (changeRegime > tm) {
     String s1 = strobRegime[regime][countOfMassive];
-    // Serial.print("count: ");
-    // Serial.print(countOfMassive);
-    // Serial.print("  string to light: ");
-    // Serial.println(s1);
     switchLamps(s1);
     lastTimeChangeRegime = millis();
     countOfMassive++;
@@ -84,47 +70,23 @@ void setup() {
   pinMode(lamp_4, OUTPUT);
   pinMode(buttonLamp, OUTPUT);
   lastTimePressed = millis();
-  // attachInterrupt(digitalPinToInterrupt(buttonPin), pressButton, CHANGE);
 }
 
 void loop() {
-  if (workOn) {
+
+  int i = digitalRead(buttonPin);
+  Serial.println(i);
+
+  // -----------------------------------
+  /*if (workOn) {
     workLights();
   }
 
-  // switch (regime) {
-  //   case 0:
-  //     digitalWrite(lamp_1, 0);
-  //     digitalWrite(lamp_2, 0);
-  //     digitalWrite(lamp_3, 0);
-  //     digitalWrite(lamp_4, 0);
-  //     digitalWrite(buttonLamp, 0);
-  //     break;
-  //   case 1:
-  //     digitalWrite(buttonLamp, 1);
-  //     break;
-  //   case 2:
-  //     digitalWrite(lamp_1, 1);
-  //     break;
-  //   case 3:
-  //     digitalWrite(lamp_2, 1);
-  //     break;
-  //   case 4:
-  //     digitalWrite(lamp_3, 1);
-  //     break;
-  //   case 5:
-  //     digitalWrite(lamp_4, 1);
-  //     break;
-  // }
-
-
-  //-------------------------------------------------------
   buttonState = digitalRead(buttonPin);
 
   unsigned long timeWhichButtonPressed = millis() - lastTimePressed;
 
-  if (buttonState && timeWhichButtonPressed > btnPressedTime && btnFlag) {  // && timeWhichButtonPressed < btnPressedTime + 10) {
-    // regime = 0;
+  if (buttonState && timeWhichButtonPressed > btnPressedTime && btnFlag) {
     workOn = false;
     digitalWrite(buttonLamp, 0);
     switchLamps("00000");
@@ -141,5 +103,5 @@ void loop() {
 
   if (!buttonState && btnFlag && timeWhichButtonPressed > btnTimerBounce) {
     btnFlag = false;
-  }
+  }*/
 }
