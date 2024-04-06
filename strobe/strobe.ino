@@ -15,8 +15,8 @@ int countStrobRegime2 = 7;
 
 // --------------------
 
-const int buttonPin = 2;   // button pin IN - D2, open - 1, closed - 0
-const int buttonLamp = 7;  // pin for button - D7
+const int buttonPin = 2;  // button pin IN - D2, open - 1, closed - 0
+int stateBtnLamp;         // state for button lamp
 
 const int lamp_1 = 3;  // pin of lamp 1 - D3
 const int lamp_2 = 4;  // pin of lamp 1 - D4
@@ -33,8 +33,10 @@ bool buttonState = false;
 bool btnFlag = false;
 
 unsigned long lastTimePressed;
-int btnPressedTime = 600;  // time for off strobe
+int btnPressedTime = 500;  // time for off strobe
 int btnTimerBounce = 180;  // time for anti bounce
+
+int time2LampButton = 300;  // delay for ligting button
 
 bool workOn = false;
 
@@ -68,33 +70,36 @@ void setup() {
   pinMode(lamp_2, OUTPUT);
   pinMode(lamp_3, OUTPUT);
   pinMode(lamp_4, OUTPUT);
-  pinMode(buttonLamp, OUTPUT);
+  pinMode(buttonPin, INPUT);
   lastTimePressed = millis();
+  digitalWrite(buttonPin, 0);
 }
 
 void loop() {
-
-  int i = digitalRead(buttonPin);
-  Serial.println(i);
-
-  // -----------------------------------
-  /*if (workOn) {
+  if (workOn) {
     workLights();
   }
 
-  buttonState = digitalRead(buttonPin);
-
   unsigned long timeWhichButtonPressed = millis() - lastTimePressed;
 
+  if (timeWhichButtonPressed > time2LampButton) {
+    pinMode(buttonPin, INPUT);
+    buttonState = !digitalRead(buttonPin);
+    if (workOn) pinMode(buttonPin, OUTPUT);
+  }
+
+
   if (buttonState && timeWhichButtonPressed > btnPressedTime && btnFlag) {
+    pinMode(buttonPin, INPUT);
     workOn = false;
-    digitalWrite(buttonLamp, 0);
+    stateBtnLamp = 1;
     switchLamps("00000");
   }
 
   if (buttonState && !btnFlag && timeWhichButtonPressed > btnTimerBounce) {
+    pinMode(buttonPin, OUTPUT);
     lastTimePressed = millis();
-    digitalWrite(buttonLamp, 1);
+    stateBtnLamp = 0;
     workOn = true;
     btnFlag = true;
     regime++;
@@ -103,5 +108,5 @@ void loop() {
 
   if (!buttonState && btnFlag && timeWhichButtonPressed > btnTimerBounce) {
     btnFlag = false;
-  }*/
+  }
 }
